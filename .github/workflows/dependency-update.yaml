@@ -1,0 +1,55 @@
+name: Update Dependencies
+
+on:
+  schedule:
+    - cron: '0 0 * * 0'  # Runs every Sunday at midnight
+  workflow_dispatch:
+
+jobs:
+  update-dependencies:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+       python-version: '3.8'
+
+    - name: Generate token
+      id: generate-token
+      uses: tibdex/github-app-token@v1
+      with:
+        app_id: ${{ secrets.APP_ID }}
+        private_key: ${{ secrets.PRIVATE_KEY }}
+
+    - name: Set up SSH agent
+      uses: webfactory/ssh-agent@v0.5.1
+      with:
+        ssh-private-key: ${{ secrets.DEPLOY_KEY }}
+
+    - name: Install Poetry
+      run: |
+        curl -sSL https://install.python-poetry.org | python - || { cat /poetry*.log; exit 1; }
+        echo "$HOME/.poetry/bin" >> $GITHUB_PATH
+
+    - name: Update dependencies
+      run: |
+        poetry update
+
+    - name: Check for changes
+      id: git-check
+      run: |
+        git diff --exit-code || echo "::set-output name=changes::true"
+
+    - name: Create Pull Request
+      if: steps.git-check.outputs.changes == 'true'
+      uses: peter-evans/create-pull-request@v3
+      with:
+        token: ${{ steps.generate-token.outputs.token }}
+        commit-message: Update dependencies
+        title: 'feat: update dependencies'
+        body: This is an auto-generated PR with dependency updates.
+        branch: update-dependencies-${{ github.run_number }}
