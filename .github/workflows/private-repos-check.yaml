@@ -1,0 +1,61 @@
+name: webauto-rosbag-daily-checker
+
+on:
+  workflow_dispatch:
+  pull_request:
+
+jobs:
+  webauto-rosbag-daily-checker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # - name: Setup SSH Keys and known_hosts
+      #   env:
+      #     PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      #   run: |
+      #     mkdir -p ~/.ssh
+      #     echo "$PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_rsa
+      #     chmod 700 ~/.ssh/id_rsa
+      #     eval $(ssh-agent -s)
+      #     ssh-add ~/.ssh/id_rsa
+      #     ssh-keyscan -H github.com >> ~/.ssh/known_hosts
+
+      # - name: Setup python3.10
+      #   uses: actions/setup-python@v2
+      #   with:
+      #     python-version: "3.10"
+
+      # - name: Install dependencies
+      #   run: |
+      #     curl -sSL https://install.python-poetry.org | python -
+      #     echo "$HOME/.local/bin" >> $GITHUB_PATH
+      #     poetry install
+
+      # - name: Decode secretes into json
+      #   env:
+      #     GOOGLE_KEY: ${{ secrets.JSON_CREDENTIAL }}
+      #     WEBAUTO_AUTH: ${{ secrets.WEBAUTO_AUTH }}
+      #   run: |
+      #     echo -n $GOOGLE_KEY | base64 --decode > google_key.json
+      #     mkdir $HOME/.webauto
+      #     echo -n $WEBAUTO_AUTH | base64 --decode > $HOME/.webauto/auth.toml
+      #     cat $HOME/.webauto/auth.toml
+
+      - name: Generate token
+        id: generate-token
+        uses: tibdex/github-app-token@v1
+        with:
+          app_id: ${{ secrets.APP_ID }}
+          private_key: ${{ secrets.PRIVATE_KEY }}
+          repositories: >-
+            ["tier4/webautocli"]
+
+      - name: Fetch WebAutoCLI release asset
+        uses: dsaltares/fetch-gh-release-asset@master
+        with:
+          repo: "tier4/webautocli"
+          version: "tags/v0.27.2"
+          file: "WebAutoCLI_0.27.2_linux_amd64.tar.gz"
+          token: ${{ secrets.GITHUB_TOKEN }}
