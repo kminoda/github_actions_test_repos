@@ -11,9 +11,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - uses: actions/create-github-app-token@v1
+        id: generate_token
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+
       - name: Setup SSH Keys and known_hosts
         env:
           PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}
         run: |
           mkdir -p ~/.ssh
           echo "$PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_rsa
@@ -55,13 +63,6 @@ jobs:
       #     private_key: ${{ secrets.PRIVATE_KEY }}
       #     repositories: >-
       #       ["tier4/webautocli"]
-
-      - uses: actions/create-github-app-token@v1
-        id: generate_token
-        with:
-          app-id: ${{ secrets.APP_ID }}
-          private-key: ${{ secrets.PRIVATE_KEY }}
-          owner: ${{ github.repository_owner }}
       
       - name: Download artifact from a repos
         env:
