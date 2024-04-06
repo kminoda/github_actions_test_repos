@@ -63,9 +63,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}
         run: |
-          git clone git@github.com:kminoda/clock_replacer.git && \
-          cd clock_replacer && \
-          gh release download v0.1.0 distorted.png && \
+          gh release download -R kminoda/clock_replacer v0.1.0 && \
           ls -al
 
       # - name: Fetch test release asset
