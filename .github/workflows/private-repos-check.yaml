@@ -44,7 +44,7 @@ jobs:
       #     cat $HOME/.webauto/auth.toml
 
       - name: Generate token
-        id: generate-token
+        id: generate_token
         uses: tibdex/github-app-token@v1
         with:
           app_id: ${{ secrets.APP_ID }}
@@ -58,4 +58,4 @@ jobs:
           repo: "tier4/webautocli"
           version: "tags/v0.27.2"
           file: "WebAutoCLI_0.27.2_linux_amd64.tar.gz"
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ steps.generate_token.outputs.token }}
