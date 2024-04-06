@@ -21,6 +21,7 @@ jobs:
           eval $(ssh-agent -s)
           ssh-add ~/.ssh/id_rsa
           ssh-keyscan -H github.com >> ~/.ssh/known_hosts
+          git clone git@github.com:kminoda/clock_replacer.git
 
       # - name: Setup python3.10
       #   uses: actions/setup-python@v2
