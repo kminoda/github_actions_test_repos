@@ -57,6 +57,7 @@ jobs:
         with:
           app-id: ${{ secrets.APP_ID }}
           private-key: ${{ secrets.PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
 
       - name: Fetch test release asset
         uses: dsaltares/fetch-gh-release-asset@master
